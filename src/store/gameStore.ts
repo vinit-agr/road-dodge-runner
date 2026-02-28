@@ -25,6 +25,7 @@ interface GameState {
   speed: number;
   currentLane: number;
   targetLane: number;
+  playerX: number;
   traffic: TrafficVehicle[];
   roadBlocks: RoadBlock[];
   spawnTimer: number;
@@ -54,6 +55,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   speed: BASE_SPEED,
   currentLane: PLAYER_START_LANE,
   targetLane: PLAYER_START_LANE,
+  playerX: LANE_POSITIONS[PLAYER_START_LANE],
   traffic: [],
   roadBlocks: [],
   spawnTimer: 0,
@@ -71,6 +73,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       speed: BASE_SPEED,
       currentLane: PLAYER_START_LANE,
       targetLane: PLAYER_START_LANE,
+      playerX: LANE_POSITIONS[PLAYER_START_LANE],
       traffic: [],
       roadBlocks: [],
       spawnTimer: 0,
@@ -192,8 +195,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     let nearAlertCooldown = Math.max(0, state.nearAlertCooldown - delta);
 
     // Collision detection (tuned for narrower bike silhouette)
-    const playerX = LANE_POSITIONS[state.currentLane];
-    const laneHitThreshold = 1.15;
+    const playerX = state.playerX;
+    const laneHitThreshold = 1.05;
     for (const t of spawned) {
       const tX = LANE_POSITIONS[t.lane];
       if (Math.abs(playerX - tX) < laneHitThreshold && t.z > -1.75 && t.z < 1.35) {

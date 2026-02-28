@@ -27,6 +27,7 @@ export function PlayerCar() {
       1 - Math.exp(-LANE_SWITCH_SPEED * delta)
     );
     groupRef.current.position.x = currentXRef.current;
+    useGameStore.setState({ playerX: currentXRef.current });
 
     // Slight tilt during lane change
     const diff = targetX - currentXRef.current;
