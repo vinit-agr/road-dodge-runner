@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import type { Mesh } from 'three';
+import type { Group, Mesh } from 'three';
 import {
   COLORS,
   LANE_POSITIONS,
@@ -15,6 +15,7 @@ export function Road() {
   const totalLength = ROAD_SEGMENT_LENGTH * ROAD_SEGMENTS;
   const offsetRef = useRef(0);
   const roadRef = useRef<Mesh>(null);
+  const dashGroupRefs = useRef<Array<Group | null>>([]);
 
   // Dashed lane lines
   const dashCount = 40;
@@ -33,6 +34,9 @@ export function Road() {
     const phase = useGameStore.getState().phase;
     if (phase !== 'playing') return;
     offsetRef.current = (offsetRef.current + speed * WORLD_SPEED_MULTIPLIER * delta) % (dashLength + dashGap);
+    for (const group of dashGroupRefs.current) {
+      if (group) group.position.z = offsetRef.current;
+    }
   });
 
   return (
@@ -67,7 +71,12 @@ export function Road() {
       {[LANE_POSITIONS[0] + (LANE_POSITIONS[1] - LANE_POSITIONS[0]) / 2,
         LANE_POSITIONS[1] + (LANE_POSITIONS[2] - LANE_POSITIONS[1]) / 2,
       ].map((x, li) => (
-        <group key={li}>
+        <group
+          key={li}
+          ref={(el) => {
+            dashGroupRefs.current[li] = el;
+          }}
+        >
           {dashPositions.map((baseZ, i) => (
             <mesh
               key={i}

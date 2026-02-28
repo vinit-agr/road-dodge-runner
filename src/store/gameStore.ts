@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GamePhase, TrafficVehicle } from '../types/game.ts';
+import type { GamePhase, RoadBlock, TrafficVehicle } from '../types/game.ts';
 import {
   BASE_SPEED,
   COLORS,
@@ -7,9 +7,12 @@ import {
   LANE_POSITIONS,
   MAX_SPEED,
   MAX_TRAFFIC,
+  MAX_BLOCKS,
   PLAYER_START_LANE,
   SPAWN_INTERVAL_BASE,
   SPAWN_INTERVAL_MIN,
+  BLOCK_SPAWN_INTERVAL_BASE,
+  BLOCK_SPAWN_INTERVAL_MIN,
   SPAWN_Z_OFFSET,
   SPEED_RAMP_RATE,
   WORLD_SPEED_MULTIPLIER,
@@ -23,7 +26,9 @@ interface GameState {
   currentLane: number;
   targetLane: number;
   traffic: TrafficVehicle[];
+  roadBlocks: RoadBlock[];
   spawnTimer: number;
+  blockSpawnTimer: number;
 
   startGame: () => void;
   gameOver: () => void;
@@ -42,7 +47,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentLane: PLAYER_START_LANE,
   targetLane: PLAYER_START_LANE,
   traffic: [],
+  roadBlocks: [],
   spawnTimer: 0,
+  blockSpawnTimer: 0,
 
   startGame: () =>
     set({
@@ -52,7 +59,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentLane: PLAYER_START_LANE,
       targetLane: PLAYER_START_LANE,
       traffic: [],
+      roadBlocks: [],
       spawnTimer: 0,
+      blockSpawnTimer: 0,
     }),
 
   gameOver: () => {
@@ -85,6 +94,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       .map((t) => ({ ...t, z: t.z + (worldSpeed - t.speed * 0.3) * delta }))
       .filter((t) => t.z < DESPAWN_Z);
 
+    // Move road blocks forward (static obstacle style)
+    const movedBlocks = state.roadBlocks
+      .map((b) => ({ ...b, z: b.z + worldSpeed * delta }))
+      .filter((b) => b.z < DESPAWN_Z);
+
     // Spawn new traffic
     let newTimer = state.spawnTimer - delta;
     let spawned = movedTraffic;
@@ -113,6 +127,34 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     }
 
+    // Spawn new road blocks
+    let newBlockTimer = state.blockSpawnTimer - delta;
+    let spawnedBlocks = movedBlocks;
+    if (newBlockTimer <= 0 && spawnedBlocks.length < MAX_BLOCKS) {
+      const speedFactor = (newSpeed - BASE_SPEED) / (MAX_SPEED - BASE_SPEED);
+      const interval = BLOCK_SPAWN_INTERVAL_BASE - speedFactor * (BLOCK_SPAWN_INTERVAL_BASE - BLOCK_SPAWN_INTERVAL_MIN);
+      newBlockTimer = interval;
+
+      const lane = Math.floor(Math.random() * 3);
+      const tooCloseToBlock = spawnedBlocks.some(
+        (b) => b.lane === lane && Math.abs(b.z - SPAWN_Z_OFFSET) < 10
+      );
+      const tooCloseToTraffic = spawned.some(
+        (t) => t.lane === lane && Math.abs(t.z - SPAWN_Z_OFFSET) < 10
+      );
+
+      if (!tooCloseToBlock && !tooCloseToTraffic) {
+        spawnedBlocks = [
+          ...spawnedBlocks,
+          {
+            id: `b${nextId++}`,
+            lane,
+            z: SPAWN_Z_OFFSET,
+          },
+        ];
+      }
+    }
+
     // Collision detection (simple lane + z proximity)
     const playerX = LANE_POSITIONS[state.currentLane];
     for (const t of spawned) {
@@ -123,11 +165,21 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     }
 
+    for (const b of spawnedBlocks) {
+      const bX = LANE_POSITIONS[b.lane];
+      if (Math.abs(playerX - bX) < 1.8 && b.z > -2.3 && b.z < 1.8) {
+        state.gameOver();
+        return;
+      }
+    }
+
     set({
       speed: newSpeed,
       score: newScore,
       traffic: spawned,
+      roadBlocks: spawnedBlocks,
       spawnTimer: newTimer,
+      blockSpawnTimer: newBlockTimer,
     });
   },
 }));

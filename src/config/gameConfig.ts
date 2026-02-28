@@ -17,9 +17,12 @@ export const WORLD_SPEED_MULTIPLIER = 3.5;
 
 export const SPAWN_INTERVAL_BASE = 1.2; // seconds
 export const SPAWN_INTERVAL_MIN = 0.4;
+export const BLOCK_SPAWN_INTERVAL_BASE = 1.8;
+export const BLOCK_SPAWN_INTERVAL_MIN = 0.8;
 export const SPAWN_Z_OFFSET = -80;
 export const DESPAWN_Z = 20;
 export const MAX_TRAFFIC = 12;
+export const MAX_BLOCKS = 8;
 
 export const CAR_DIMENSIONS = { width: 1.4, height: 0.8, length: 2.4 };
 export const TRAFFIC_DIMENSIONS = { width: 1.4, height: 0.9, length: 2.8 };

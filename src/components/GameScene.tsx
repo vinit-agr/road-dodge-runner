@@ -4,6 +4,7 @@ import { useGameStore } from '../store/gameStore.ts';
 import { PlayerCar } from './PlayerCar.tsx';
 import { Road } from './Road.tsx';
 import { TrafficManager } from './TrafficManager.tsx';
+import { RoadBlockManager } from './RoadBlockManager.tsx';
 
 export function GameScene() {
   useFrame((_, delta) => {
@@ -39,6 +40,7 @@ export function GameScene() {
       <Road />
       <PlayerCar />
       <TrafficManager />
+      <RoadBlockManager />
 
       {/* Distant glow strips (decorative) */}
       {[-1, 1].map((side) =>

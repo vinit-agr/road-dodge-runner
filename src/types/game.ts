@@ -7,3 +7,9 @@ export interface TrafficVehicle {
   color: string;
   speed: number;
 }
+
+export interface RoadBlock {
+  id: string;
+  lane: number;
+  z: number;
+}
