@@ -191,11 +191,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     let nearAlertTick = state.nearAlertTick;
     let nearAlertCooldown = Math.max(0, state.nearAlertCooldown - delta);
 
-    // Collision detection (simple lane + z proximity)
+    // Collision detection (tuned for narrower bike silhouette)
     const playerX = LANE_POSITIONS[state.currentLane];
+    const laneHitThreshold = 1.15;
     for (const t of spawned) {
       const tX = LANE_POSITIONS[t.lane];
-      if (Math.abs(playerX - tX) < 1.8 && t.z > -2.5 && t.z < 2.0) {
+      if (Math.abs(playerX - tX) < laneHitThreshold && t.z > -1.75 && t.z < 1.35) {
         state.gameOver();
         return;
       }
@@ -203,9 +204,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       // Subtle "nearby traffic" sound trigger (near pass / side whoosh)
       if (
         nearAlertCooldown <= 0 &&
-        Math.abs(playerX - tX) < 3.6 &&
-        t.z > -1.2 &&
-        t.z < 5.0
+        Math.abs(playerX - tX) < 3.0 &&
+        t.z > -0.8 &&
+        t.z < 4.6
       ) {
         nearAlertTick += 1;
         nearAlertCooldown = 0.2;
@@ -214,7 +215,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     for (const b of spawnedBlocks) {
       const bX = LANE_POSITIONS[b.lane];
-      if (Math.abs(playerX - bX) < 1.8 && b.z > -2.3 && b.z < 1.8) {
+      if (Math.abs(playerX - bX) < laneHitThreshold && b.z > -1.7 && b.z < 1.25) {
         state.gameOver();
         return;
       }

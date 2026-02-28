@@ -38,10 +38,13 @@ function createBeep(
 
 export function useGameSfx() {
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const bgmAvailableRef = useRef(true);
 
   const laneChangeTick = useGameStore((s) => s.laneChangeTick);
   const nearAlertTick = useGameStore((s) => s.nearAlertTick);
   const crashTick = useGameStore((s) => s.crashTick);
+  const phase = useGameStore((s) => s.phase);
 
   useEffect(() => {
     const init = () => {
@@ -50,6 +53,18 @@ export function useGameSfx() {
         if (Ctx) audioCtxRef.current = new Ctx();
       }
       void audioCtxRef.current?.resume();
+
+      // Optional BGM loop. Works if /bg-music.mp3 exists; silently degrades if missing.
+      if (!bgmRef.current) {
+        const bgm = new Audio('/bg-music.mp3');
+        bgm.loop = true;
+        bgm.volume = 0.25;
+        bgm.preload = 'auto';
+        bgm.addEventListener('error', () => {
+          bgmAvailableRef.current = false;
+        });
+        bgmRef.current = bgm;
+      }
     };
 
     window.addEventListener('pointerdown', init, { once: true });
@@ -58,6 +73,9 @@ export function useGameSfx() {
     return () => {
       window.removeEventListener('pointerdown', init);
       window.removeEventListener('keydown', init);
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+      }
     };
   }, []);
 
@@ -84,4 +102,17 @@ export function useGameSfx() {
       navigator.vibrate(70);
     }
   }, [crashTick]);
+
+  useEffect(() => {
+    const bgm = bgmRef.current;
+    if (!bgm || !bgmAvailableRef.current) return;
+
+    if (phase === 'playing') {
+      void bgm.play().catch(() => {
+        // autoplay can still be blocked until user gesture; ignore safely
+      });
+    } else {
+      bgm.pause();
+    }
+  }, [phase]);
 }
