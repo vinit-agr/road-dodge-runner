@@ -14,11 +14,21 @@ export function GameScene() {
   return (
     <>
       {/* Lighting */}
-      <ambientLight color={COLORS.ambient} intensity={0.4} />
+      <ambientLight color={COLORS.ambient} intensity={0.9} />
+      <hemisphereLight
+        color="#a8c8ff"
+        groundColor="#2f1f3d"
+        intensity={0.75}
+      />
       <directionalLight
         position={[5, 10, 5]}
-        intensity={0.3}
-        color="#6688aa"
+        intensity={0.9}
+        color="#9cc0ff"
+      />
+      <directionalLight
+        position={[-6, 6, 10]}
+        intensity={0.55}
+        color="#ffb56a"
       />
 
       {/* Fog for depth / nostalgic feel */}
@@ -37,8 +47,8 @@ export function GameScene() {
             key={`light-${side}-${i}`}
             position={[side * 7, 3, -i * 15 - 10]}
             color="#ff8800"
-            intensity={0.5}
-            distance={8}
+            intensity={0.9}
+            distance={14}
           />
         ))
       )}

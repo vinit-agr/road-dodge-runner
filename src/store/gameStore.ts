@@ -12,6 +12,7 @@ import {
   SPAWN_INTERVAL_MIN,
   SPAWN_Z_OFFSET,
   SPEED_RAMP_RATE,
+  WORLD_SPEED_MULTIPLIER,
 } from '../config/gameConfig.ts';
 
 interface GameState {
@@ -76,9 +77,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     const newSpeed = Math.min(MAX_SPEED, state.speed + SPEED_RAMP_RATE * delta);
     const newScore = state.score + delta * newSpeed;
 
+    // Keep speed value readable in HUD, but move world faster for gameplay feel.
+    const worldSpeed = newSpeed * WORLD_SPEED_MULTIPLIER;
+
     // Move traffic forward (towards player) and despawn
     const movedTraffic = state.traffic
-      .map((t) => ({ ...t, z: t.z + (newSpeed - t.speed * 0.3) * delta }))
+      .map((t) => ({ ...t, z: t.z + (worldSpeed - t.speed * 0.3) * delta }))
       .filter((t) => t.z < DESPAWN_Z);
 
     // Spawn new traffic

@@ -7,6 +7,7 @@ import {
   ROAD_SEGMENT_LENGTH,
   ROAD_SEGMENTS,
   ROAD_WIDTH,
+  WORLD_SPEED_MULTIPLIER,
 } from '../config/gameConfig.ts';
 import { useGameStore } from '../store/gameStore.ts';
 
@@ -31,7 +32,7 @@ export function Road() {
     const speed = useGameStore.getState().speed;
     const phase = useGameStore.getState().phase;
     if (phase !== 'playing') return;
-    offsetRef.current = (offsetRef.current + speed * delta) % (dashLength + dashGap);
+    offsetRef.current = (offsetRef.current + speed * WORLD_SPEED_MULTIPLIER * delta) % (dashLength + dashGap);
   });
 
   return (
@@ -92,7 +93,7 @@ export function Road() {
           position={[side * (ROAD_WIDTH / 2 + 15), -0.02, -totalLength / 2 + 10]}
         >
           <planeGeometry args={[30, totalLength]} />
-          <meshStandardMaterial color="#0d0d1a" roughness={1} />
+          <meshStandardMaterial color="#1a1830" roughness={1} />
         </mesh>
       ))}
     </group>

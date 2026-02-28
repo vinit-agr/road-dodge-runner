@@ -12,6 +12,9 @@ export const BASE_SPEED = 8;
 export const MAX_SPEED = 30;
 export const SPEED_RAMP_RATE = 0.15; // per second
 
+// Keep HUD speed values the same, but scale world movement feel.
+export const WORLD_SPEED_MULTIPLIER = 3.5;
+
 export const SPAWN_INTERVAL_BASE = 1.2; // seconds
 export const SPAWN_INTERVAL_MIN = 0.4;
 export const SPAWN_Z_OFFSET = -80;
