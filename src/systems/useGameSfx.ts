@@ -1,0 +1,85 @@
+import { useEffect, useRef } from 'react';
+import { useGameStore } from '../store/gameStore.ts';
+
+function createBeep(
+  ctx: AudioContext,
+  {
+    freq,
+    duration,
+    type = 'sine',
+    volume = 0.08,
+    sweepTo,
+  }: {
+    freq: number;
+    duration: number;
+    type?: OscillatorType;
+    volume?: number;
+    sweepTo?: number;
+  }
+) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  if (sweepTo) {
+    osc.frequency.exponentialRampToValueAtTime(sweepTo, ctx.currentTime + duration);
+  }
+
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(volume, ctx.currentTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration + 0.02);
+}
+
+export function useGameSfx() {
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const laneChangeTick = useGameStore((s) => s.laneChangeTick);
+  const nearAlertTick = useGameStore((s) => s.nearAlertTick);
+  const crashTick = useGameStore((s) => s.crashTick);
+
+  useEffect(() => {
+    const init = () => {
+      if (!audioCtxRef.current) {
+        const Ctx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (Ctx) audioCtxRef.current = new Ctx();
+      }
+      void audioCtxRef.current?.resume();
+    };
+
+    window.addEventListener('pointerdown', init, { once: true });
+    window.addEventListener('keydown', init, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', init);
+      window.removeEventListener('keydown', init);
+    };
+  }, []);
+
+  useEffect(() => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    createBeep(ctx, { freq: 620, sweepTo: 780, duration: 0.08, type: 'triangle', volume: 0.035 });
+  }, [laneChangeTick]);
+
+  useEffect(() => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    createBeep(ctx, { freq: 180, sweepTo: 130, duration: 0.06, type: 'sawtooth', volume: 0.018 });
+  }, [nearAlertTick]);
+
+  useEffect(() => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    createBeep(ctx, { freq: 220, sweepTo: 80, duration: 0.22, type: 'square', volume: 0.09 });
+
+    if (navigator.vibrate) {
+      navigator.vibrate(70);
+    }
+  }, [crashTick]);
+}

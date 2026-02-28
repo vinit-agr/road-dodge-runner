@@ -24,9 +24,16 @@ export function useInput() {
       }
       // Start / restart on Space or Enter
       if (e.key === ' ' || e.key === 'Enter') {
-        const { phase, startGame, returnToMenu } = useGameStore.getState();
+        const { phase, startGame, returnToMenu, resumeGame } = useGameStore.getState();
         if (phase === 'menu') startGame();
+        else if (phase === 'paused') resumeGame();
         else if (phase === 'gameover') returnToMenu();
+      }
+
+      // Pause / resume
+      if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+        const { togglePause } = useGameStore.getState();
+        togglePause();
       }
     };
 

@@ -29,10 +29,18 @@ interface GameState {
   roadBlocks: RoadBlock[];
   spawnTimer: number;
   blockSpawnTimer: number;
+  nearAlertCooldown: number;
+
+  laneChangeTick: number;
+  nearAlertTick: number;
+  crashTick: number;
 
   startGame: () => void;
   gameOver: () => void;
   returnToMenu: () => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
+  togglePause: () => void;
   switchLane: (dir: -1 | 1) => void;
   tick: (delta: number) => void;
 }
@@ -50,6 +58,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   roadBlocks: [],
   spawnTimer: 0,
   blockSpawnTimer: 0,
+  nearAlertCooldown: 0,
+
+  laneChangeTick: 0,
+  nearAlertTick: 0,
+  crashTick: 0,
 
   startGame: () =>
     set({
@@ -62,21 +75,40 @@ export const useGameStore = create<GameState>((set, get) => ({
       roadBlocks: [],
       spawnTimer: 0,
       blockSpawnTimer: 0,
+      nearAlertCooldown: 0,
     }),
 
   gameOver: () => {
-    const { score, bestScore } = get();
+    const { score, bestScore, crashTick } = get();
     const newBest = Math.max(score, bestScore);
     localStorage.setItem('rdr_best', String(newBest));
-    set({ phase: 'gameover', bestScore: newBest });
+    set({ phase: 'gameover', bestScore: newBest, crashTick: crashTick + 1 });
   },
 
   returnToMenu: () => set({ phase: 'menu' }),
 
+  pauseGame: () => {
+    const { phase } = get();
+    if (phase === 'playing') set({ phase: 'paused' });
+  },
+
+  resumeGame: () => {
+    const { phase } = get();
+    if (phase === 'paused') set({ phase: 'playing' });
+  },
+
+  togglePause: () => {
+    const { phase } = get();
+    if (phase === 'playing') set({ phase: 'paused' });
+    else if (phase === 'paused') set({ phase: 'playing' });
+  },
+
   switchLane: (dir) => {
-    const { targetLane } = get();
+    const { targetLane, laneChangeTick } = get();
     const newLane = Math.max(0, Math.min(2, targetLane + dir));
-    set({ targetLane: newLane });
+    if (newLane !== targetLane) {
+      set({ targetLane: newLane, laneChangeTick: laneChangeTick + 1 });
+    }
   },
 
   tick: (delta) => {
@@ -155,6 +187,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     }
 
+    // Near-miss proximity cue (same lane + close z, but not collision)
+    let nearAlertTick = state.nearAlertTick;
+    let nearAlertCooldown = Math.max(0, state.nearAlertCooldown - delta);
+
     // Collision detection (simple lane + z proximity)
     const playerX = LANE_POSITIONS[state.currentLane];
     for (const t of spawned) {
@@ -162,6 +198,17 @@ export const useGameStore = create<GameState>((set, get) => ({
       if (Math.abs(playerX - tX) < 1.8 && t.z > -2.5 && t.z < 2.0) {
         state.gameOver();
         return;
+      }
+
+      // Subtle "nearby traffic" sound trigger
+      if (
+        nearAlertCooldown <= 0 &&
+        Math.abs(playerX - tX) < 1.8 &&
+        t.z > 2.0 &&
+        t.z < 6.5
+      ) {
+        nearAlertTick += 1;
+        nearAlertCooldown = 0.25;
       }
     }
 
@@ -180,6 +227,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       roadBlocks: spawnedBlocks,
       spawnTimer: newTimer,
       blockSpawnTimer: newBlockTimer,
+      nearAlertTick,
+      nearAlertCooldown,
     });
   },
 }));

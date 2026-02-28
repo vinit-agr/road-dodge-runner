@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { GameScene } from './components/GameScene.tsx';
 import { useGameStore } from './store/gameStore.ts';
 import { useInput } from './systems/useInput.ts';
+import { useGameSfx } from './systems/useGameSfx.ts';
 import { HUD } from './ui/HUD.tsx';
 import { StartScreen } from './ui/StartScreen.tsx';
 import { GameOverScreen } from './ui/GameOverScreen.tsx';
@@ -10,6 +11,7 @@ import { COLORS } from './config/gameConfig.ts';
 
 function App() {
   useInput();
+  useGameSfx();
   const phase = useGameStore((s) => s.phase);
 
   return (
@@ -34,7 +36,14 @@ function App() {
         {phase === 'gameover' && <GameOverScreen key="gameover" />}
       </AnimatePresence>
 
-      {phase === 'playing' && <HUD />}
+      {phase === 'paused' && (
+        <div className="overlay">
+          <h2 className="title" style={{ fontSize: 'clamp(2rem, 7vw, 4rem)' }}>PAUSED</h2>
+          <p className="subtitle">Press P / ESC / Tap ▶ to resume</p>
+        </div>
+      )}
+
+      {(phase === 'playing' || phase === 'paused') && <HUD />}
     </div>
   );
 }

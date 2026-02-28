@@ -1,4 +1,4 @@
-export type GamePhase = 'menu' | 'playing' | 'gameover';
+export type GamePhase = 'menu' | 'playing' | 'paused' | 'gameover';
 
 export interface TrafficVehicle {
   id: string;

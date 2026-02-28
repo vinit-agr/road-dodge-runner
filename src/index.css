@@ -137,6 +137,8 @@ canvas {
 .hud-top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
   padding: 1rem 1.2rem;
 }
 
@@ -156,6 +158,24 @@ canvas {
   font-size: clamp(0.9rem, 3vw, 1.3rem);
   color: #00ff88;
   text-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+}
+
+.hud-pause-btn {
+  pointer-events: auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(0, 255, 136, 0.45);
+  background: rgba(0, 255, 136, 0.12);
+  color: #00ff88;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.hud-pause-btn:active {
+  background: rgba(0, 255, 136, 0.25);
 }
 
 /* Mobile controls */

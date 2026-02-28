@@ -5,6 +5,8 @@ export function HUD() {
   const bestScore = useGameStore((s) => s.bestScore);
   const speed = useGameStore((s) => s.speed);
   const switchLane = useGameStore((s) => s.switchLane);
+  const togglePause = useGameStore((s) => s.togglePause);
+  const phase = useGameStore((s) => s.phase);
 
   return (
     <div className="hud">
@@ -21,6 +23,15 @@ export function HUD() {
           <span className="hud-label">BEST</span>
           <span className="hud-value">{Math.floor(bestScore)}</span>
         </div>
+        <button
+          className="hud-pause-btn"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            togglePause();
+          }}
+        >
+          {phase === 'paused' ? '▶' : '⏸'}
+        </button>
       </div>
 
       {/* Mobile on-screen buttons */}
