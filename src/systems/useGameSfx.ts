@@ -58,7 +58,7 @@ export function useGameSfx() {
       if (!bgmRef.current) {
         const bgm = new Audio('/bg-music.mp3');
         bgm.loop = true;
-        bgm.volume = 0.25;
+        bgm.volume = 0.14;
         bgm.preload = 'auto';
         bgm.addEventListener('error', () => {
           bgmAvailableRef.current = false;
@@ -82,21 +82,21 @@ export function useGameSfx() {
   useEffect(() => {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
-    createBeep(ctx, { freq: 620, sweepTo: 780, duration: 0.08, type: 'triangle', volume: 0.035 });
+    createBeep(ctx, { freq: 620, sweepTo: 780, duration: 0.08, type: 'triangle', volume: 0.06 });
   }, [laneChangeTick]);
 
   useEffect(() => {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
     // Slightly more audible near-pass whoosh (still subtle)
-    createBeep(ctx, { freq: 420, sweepTo: 260, duration: 0.09, type: 'triangle', volume: 0.03 });
-    createBeep(ctx, { freq: 230, sweepTo: 170, duration: 0.07, type: 'sawtooth', volume: 0.018 });
+    createBeep(ctx, { freq: 420, sweepTo: 260, duration: 0.09, type: 'triangle', volume: 0.052 });
+    createBeep(ctx, { freq: 230, sweepTo: 170, duration: 0.07, type: 'sawtooth', volume: 0.03 });
   }, [nearAlertTick]);
 
   useEffect(() => {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
-    createBeep(ctx, { freq: 220, sweepTo: 80, duration: 0.22, type: 'square', volume: 0.09 });
+    createBeep(ctx, { freq: 220, sweepTo: 80, duration: 0.22, type: 'square', volume: 0.13 });
 
     if (navigator.vibrate) {
       navigator.vibrate(70);
