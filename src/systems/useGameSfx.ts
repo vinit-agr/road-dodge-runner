@@ -56,7 +56,7 @@ export function useGameSfx() {
 
       // Optional BGM loop. Works if /bg-music.mp3 exists; silently degrades if missing.
       if (!bgmRef.current) {
-        const bgm = new Audio('/bg-music.mp3');
+        const bgm = new Audio(`${import.meta.env.BASE_URL}bg-music.mp3`);
         bgm.loop = true;
         bgm.volume = 0.14;
         bgm.preload = 'auto';
