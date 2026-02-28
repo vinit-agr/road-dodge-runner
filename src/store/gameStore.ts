@@ -200,15 +200,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         return;
       }
 
-      // Subtle "nearby traffic" sound trigger
+      // Subtle "nearby traffic" sound trigger (near pass / side whoosh)
       if (
         nearAlertCooldown <= 0 &&
-        Math.abs(playerX - tX) < 1.8 &&
-        t.z > 2.0 &&
-        t.z < 6.5
+        Math.abs(playerX - tX) < 3.6 &&
+        t.z > -1.2 &&
+        t.z < 5.0
       ) {
         nearAlertTick += 1;
-        nearAlertCooldown = 0.25;
+        nearAlertCooldown = 0.2;
       }
     }
 

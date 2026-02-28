@@ -70,7 +70,9 @@ export function useGameSfx() {
   useEffect(() => {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
-    createBeep(ctx, { freq: 180, sweepTo: 130, duration: 0.06, type: 'sawtooth', volume: 0.018 });
+    // Slightly more audible near-pass whoosh (still subtle)
+    createBeep(ctx, { freq: 420, sweepTo: 260, duration: 0.09, type: 'triangle', volume: 0.03 });
+    createBeep(ctx, { freq: 230, sweepTo: 170, duration: 0.07, type: 'sawtooth', volume: 0.018 });
   }, [nearAlertTick]);
 
   useEffect(() => {

@@ -13,6 +13,7 @@ function App() {
   useInput();
   useGameSfx();
   const phase = useGameStore((s) => s.phase);
+  const resumeGame = useGameStore((s) => s.resumeGame);
 
   return (
     <div className="game-container">
@@ -39,7 +40,10 @@ function App() {
       {phase === 'paused' && (
         <div className="overlay">
           <h2 className="title" style={{ fontSize: 'clamp(2rem, 7vw, 4rem)' }}>PAUSED</h2>
-          <p className="subtitle">Press P / ESC / Tap ▶ to resume</p>
+          <p className="subtitle">Press P / ESC or tap Resume</p>
+          <button className="start-btn" onPointerDown={(e) => { e.preventDefault(); resumeGame(); }}>
+            Resume ▶
+          </button>
         </div>
       )}
 
