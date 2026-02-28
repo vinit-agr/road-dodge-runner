@@ -44,58 +44,98 @@ export function PlayerCar() {
 
   const { width, height, length } = CAR_DIMENSIONS;
 
+  // Sports bike proportions (derived from existing car size so gameplay stays balanced)
+  const bikeWidth = width * 0.42;
+  const bikeHeight = height * 0.95;
+  const bikeLength = length * 1.05;
+  const wheelRadius = bikeHeight * 0.28;
+  const wheelTube = bikeWidth * 0.22;
+
   return (
-    <group ref={groupRef} position={[LANE_POSITIONS[1], height / 2 + 0.01, PLAYER_Z]}>
-      {/* Main body */}
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[width, height * 0.5, length]} />
-        <meshStandardMaterial color={COLORS.player} metalness={0.6} roughness={0.3} />
+    <group ref={groupRef} position={[LANE_POSITIONS[1], wheelRadius + 0.02, PLAYER_Z]}>
+      {/* Wheels */}
+      {[-1, 1].map((front, i) => (
+        <group key={`wheel-${i}`} position={[0, 0, front * (bikeLength * 0.33)]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[wheelRadius, wheelTube, 12, 24]} />
+            <meshStandardMaterial color="#0d101a" roughness={0.95} metalness={0.15} />
+          </mesh>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[wheelRadius * 0.22, wheelRadius * 0.22, bikeWidth * 0.7, 12]} />
+            <meshStandardMaterial color="#9aaad0" roughness={0.25} metalness={0.85} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Chassis spine */}
+      <mesh position={[0, bikeHeight * 0.2, 0]}>
+        <boxGeometry args={[bikeWidth * 0.35, bikeHeight * 0.22, bikeLength * 0.9]} />
+        <meshStandardMaterial color="#6f86c9" roughness={0.35} metalness={0.75} />
       </mesh>
 
-      {/* Cabin */}
-      <mesh position={[0, height * 0.35, -0.1]}>
-        <boxGeometry args={[width * 0.8, height * 0.4, length * 0.5]} />
-        <meshStandardMaterial color={COLORS.playerAccent} metalness={0.4} roughness={0.4} />
+      {/* Front fairing */}
+      <mesh position={[0, bikeHeight * 0.45, -bikeLength * 0.22]}>
+        <boxGeometry args={[bikeWidth, bikeHeight * 0.42, bikeLength * 0.36]} />
+        <meshStandardMaterial color={COLORS.player} roughness={0.28} metalness={0.72} />
+      </mesh>
+
+      {/* Side sporty panels */}
+      {[-1, 1].map((side) => (
+        <mesh key={`panel-${side}`} position={[side * bikeWidth * 0.42, bikeHeight * 0.26, -bikeLength * 0.05]}>
+          <boxGeometry args={[bikeWidth * 0.18, bikeHeight * 0.34, bikeLength * 0.52]} />
+          <meshStandardMaterial color={COLORS.playerAccent} roughness={0.35} metalness={0.62} />
+        </mesh>
+      ))}
+
+      {/* Fuel tank */}
+      <mesh position={[0, bikeHeight * 0.5, bikeLength * 0.02]}>
+        <boxGeometry args={[bikeWidth * 0.78, bikeHeight * 0.28, bikeLength * 0.34]} />
+        <meshStandardMaterial color="#00b3d8" roughness={0.25} metalness={0.8} />
+      </mesh>
+
+      {/* Seat + tail */}
+      <mesh position={[0, bikeHeight * 0.48, bikeLength * 0.31]}>
+        <boxGeometry args={[bikeWidth * 0.56, bikeHeight * 0.2, bikeLength * 0.3]} />
+        <meshStandardMaterial color="#10131d" roughness={0.9} metalness={0.1} />
       </mesh>
 
       {/* Windshield */}
-      <mesh position={[0, height * 0.35, -length * 0.25 + 0.3]}>
-        <boxGeometry args={[width * 0.75, height * 0.35, 0.05]} />
+      <mesh position={[0, bikeHeight * 0.63, -bikeLength * 0.32]}>
+        <boxGeometry args={[bikeWidth * 0.62, bikeHeight * 0.25, 0.05]} />
         <meshStandardMaterial
           color={COLORS.playerWindshield}
           metalness={0.9}
-          roughness={0.1}
+          roughness={0.08}
           transparent
-          opacity={0.7}
+          opacity={0.72}
         />
       </mesh>
 
-      {/* Headlights */}
-      {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * width * 0.35, -0.05, -length / 2]}>
-          <boxGeometry args={[0.25, 0.15, 0.1]} />
-          <meshStandardMaterial
-            color={COLORS.headlight}
-            emissive={COLORS.headlight}
-            emissiveIntensity={2}
-          />
-        </mesh>
-      ))}
+      {/* Handle bar */}
+      <mesh position={[0, bikeHeight * 0.62, -bikeLength * 0.2]}>
+        <boxGeometry args={[bikeWidth * 0.95, bikeHeight * 0.06, bikeLength * 0.08]} />
+        <meshStandardMaterial color="#c0d4ff" roughness={0.3} metalness={0.85} />
+      </mesh>
 
-      {/* Tail lights */}
-      {[-1, 1].map((side) => (
-        <mesh key={`tail-${side}`} position={[side * width * 0.35, -0.05, length / 2]}>
-          <boxGeometry args={[0.25, 0.15, 0.1]} />
-          <meshStandardMaterial
-            color="#ff2200"
-            emissive="#ff2200"
-            emissiveIntensity={1.5}
-          />
-        </mesh>
-      ))}
+      {/* Front light */}
+      <mesh position={[0, bikeHeight * 0.46, -bikeLength * 0.42]}>
+        <boxGeometry args={[bikeWidth * 0.38, bikeHeight * 0.14, 0.08]} />
+        <meshStandardMaterial color={COLORS.headlight} emissive={COLORS.headlight} emissiveIntensity={2.4} />
+      </mesh>
 
-      {/* Headlight beams */}
-      <pointLight position={[0, 0.2, -length / 2 - 1]} color={COLORS.headlight} intensity={3} distance={15} />
+      {/* Tail light */}
+      <mesh position={[0, bikeHeight * 0.45, bikeLength * 0.47]}>
+        <boxGeometry args={[bikeWidth * 0.32, bikeHeight * 0.12, 0.07]} />
+        <meshStandardMaterial color="#ff2b2b" emissive="#ff2b2b" emissiveIntensity={1.7} />
+      </mesh>
+
+      {/* Headlight beam */}
+      <pointLight
+        position={[0, bikeHeight * 0.45, -bikeLength * 0.75]}
+        color={COLORS.headlight}
+        intensity={3.2}
+        distance={16}
+      />
     </group>
   );
 }
