@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GamePhase, RoadBlock, TrafficVehicle } from '../types/game.ts';
+import type { GamePhase, RoadBlock, RoadObstacleKind, TrafficVehicle } from '../types/game.ts';
 import {
   BASE_SPEED,
   COLORS,
@@ -47,6 +47,7 @@ interface GameState {
 }
 
 let nextId = 0;
+const ROAD_OBSTACLE_KINDS: RoadObstacleKind[] = ['cone', 'barrier', 'duck', 'crate'];
 
 export const useGameStore = create<GameState>((set, get) => ({
   phase: 'menu',
@@ -185,6 +186,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             id: `b${nextId++}`,
             lane,
             z: SPAWN_Z_OFFSET,
+            kind: ROAD_OBSTACLE_KINDS[Math.floor(Math.random() * ROAD_OBSTACLE_KINDS.length)],
           },
         ];
       }

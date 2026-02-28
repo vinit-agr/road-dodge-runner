@@ -8,8 +8,11 @@ export interface TrafficVehicle {
   speed: number;
 }
 
+export type RoadObstacleKind = 'cone' | 'barrier' | 'duck' | 'crate';
+
 export interface RoadBlock {
   id: string;
   lane: number;
   z: number;
+  kind: RoadObstacleKind;
 }
